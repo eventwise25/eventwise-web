@@ -13,8 +13,8 @@ import { EventFormData } from '../../../../interface/Events';
 interface EventInfoProps {
     event?: EventFormData;
 }
-  
-const EventInfo : React.FC<EventInfoProps> = ({event}) => {
+
+const EventInfo: React.FC<EventInfoProps> = ({ event }) => {
     if (!event) {
         return <p className="p-4 text-red-500">Event not found.</p>;
     }
@@ -176,6 +176,30 @@ const EventInfo : React.FC<EventInfoProps> = ({event}) => {
                             </li>
                         ))}
                     </ul>
+                </div>
+            )}
+
+            {event.results && event.results.length > 0 && (
+                <div className="mt-10">
+                    <h3 className="text-2xl font-semibold mb-4 text-center">Results</h3>
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full border border-gray-300 rounded-lg">
+                            <thead className="bg-gray-100">
+                                <tr>
+                                    <th className="py-2 px-4 border-b">Team ID</th>
+                                    <th className="py-2 px-4 border-b">Position</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {event.results.map((result, index) => (
+                                    <tr key={index} className="text-center">
+                                        <td className="py-2 px-4 border-b">{result.registration_id}</td>
+                                        <td className="py-2 px-4 border-b">{result.win_position}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             )}
         </div>
