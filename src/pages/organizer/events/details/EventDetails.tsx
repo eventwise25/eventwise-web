@@ -176,13 +176,22 @@ export default function EventDashboard() {
 
   // Fetch all the data of Events Info, Registrations, Results, and Feedback. Store it into the state.
   useEffect(() => {
-    if (user && id) {
-      setLoading(true);
-      fetchEvent(user.id, id);
-      fetchRegistrationsData();
-      fetchFeedbacks(user.id, id);
-    }
+    const loadAllData = async () => {
+      if (user && id) {
+        setLoading(true);
+        const eventData = await getEventById(user.id, id);
+        if (eventData) {
+          setEvent(eventData);
+          await fetchRegistrationsData(eventData); // pass event explicitly
+          await fetchFeedbacks(user.id, id);
+        }
+        setLoading(false);
+      }
+    };
+  
+    loadAllData();
   }, [user, id]);
+  
 
   useEffect(() => {
     if(event && registrations && feedbacks){
@@ -190,12 +199,12 @@ export default function EventDashboard() {
     }
   })
 
-  const fetchEvent = async (user_id: string, event_id: string) => {
-    const eventData = await getEventById(user_id, event_id);
-    if (eventData) {
-      setEvent(eventData);
-    }
-  };
+  // const fetchEvent = async (user_id: string, event_id: string) => {
+  //   const eventData = await getEventById(user_id, event_id);
+  //   if (eventData) {
+  //     setEvent(eventData);
+  //   }
+  // };
   
   const fetchFeedbacks = async (user_id: string, event_id: string) => {
     if (!user || user.role !== "organizer") return;
@@ -203,20 +212,20 @@ export default function EventDashboard() {
     dispatch(setFeedbacks(data));
   };
   
-  const fetchRegistrationsData = async () => {
+  const fetchRegistrationsData = async (eventData: EventFormData) => {
     if (!user || user.role !== "organizer" || !id) return;
   
     const rawRegistrations = await getEventRegistrations(user.id, id);
   
     const enriched = await Promise.all(
       rawRegistrations.map(async (reg) => {
-        const allMembers = event?.is_team_event
-          ? [reg.user_id, ...(reg.members || [])]
+        const allMembers = eventData.is_team_event
+          ? [reg.user_id, ...(reg.members || []).map((m) => m.id)]
           : [reg.user_id];
   
         const member_details = await Promise.all(
-          allMembers.map(async (mem: string) => {
-            const user = await getUserById(mem);
+          allMembers.map(async (memId: string) => {
+            const user = await getUserById(memId);
             return user;
           })
         );
@@ -231,9 +240,13 @@ export default function EventDashboard() {
     );
   
     dispatch(setRegistrations(enriched));
-  };  
+  };
   
   console.log(id);
+
+  const handleEventUpdate = (updatedFields: Partial<EventFormData>) => {
+    setEvent((prev) => prev ? { ...prev, ...updatedFields } : prev);
+  };
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -242,7 +255,7 @@ export default function EventDashboard() {
       case "Registrations":
         return <Registrations event={event} />;
       case "Results":
-        return <Results event={event} />;
+        return <Results event={event} onEventUpdate={handleEventUpdate} />;
       case "Feedback":
         return <Feedback event={event} />;
       default:

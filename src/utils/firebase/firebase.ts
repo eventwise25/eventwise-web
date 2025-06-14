@@ -17,6 +17,10 @@ const firebaseConfig = {
   appId: "1:484809724771:web:a261829426415737b8b956"
 };
 
+// console.log(import.meta.env.VITE_FIREBASE_APPID)
+// console.log(import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID)
+// console.log(import.meta.env.VITE_FIREBASE_APIKEY)
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);

@@ -88,7 +88,7 @@ const Registrations: React.FC<RegistrationProps> = ({ event }) => {
                             </div>
     
                             <button
-                                onClick={(e) => {
+                                onClick={(e : any) => {
                                     e.stopPropagation(); // prevent modal opening
                                     generateCertificate(reg, isWinner ? "winner" : "participant");
                                 }}

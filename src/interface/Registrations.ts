@@ -1,8 +1,12 @@
-export interface Registration{
+export interface Registration {
     id: string;
-    members: string[];
     user_id: string;
-    team_name : string;
+    team_name: string;
+    members: {
+      id: string;
+      accepted: boolean;
+    }[];
     is_winner?: boolean;
     position?: number;
-}
+  }
+  
